@@ -358,7 +358,7 @@ pub(super) fn JobDetailLoaded(
     };
 
     // ── Render sub-components ───────────────────
-    let job_id_for_runs = job.id.clone();
+    let job_id_for_runs = job.id;
 
     view! {
         <JobDetailHeader props=header_props />

@@ -228,8 +228,7 @@ pub async fn get_job_runs_page(
     let job_name = backend
         .get_job(&actual_job_id)
         .await
-        .map(|j| j.job_name)
-        .unwrap_or_else(|| "Unknown".to_string());
+        .map_or_else(|| "Unknown".to_string(), |j| j.job_name);
 
     runs_page_from_request(
         backend,
