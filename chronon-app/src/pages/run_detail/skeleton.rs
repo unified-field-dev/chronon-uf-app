@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 use orbital::components::{
-    Body1, Caption1, Caption2, Card, CardContent, Skeleton, SkeletonItem, SkeletonItemSize,
+    Caption1, Caption2, Card, CardContent, Skeleton, SkeletonItem, SkeletonItemSize,
     SpacingSize, Subtitle2,
 };
 use orbital::primitives::{Flex, FlexAlign, Grid, GridConfig, GridItem};
