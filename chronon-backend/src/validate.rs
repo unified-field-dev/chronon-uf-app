@@ -117,7 +117,6 @@ enum ChrononIdErrorKind {
 /// Returns a [`ChrononIdError`] variant when the id is empty/whitespace-only,
 /// longer than [`MAX_CHRONON_ID_CHARS`], contains `/` `\` or ASCII controls, or is
 /// exactly `.` / `..`.
-
 pub fn validate_job_id(job_id: &str) -> Result<(), ChrononIdError> {
     match check_ops_id(job_id) {
         Ok(_) => Ok(()),
