@@ -1,0 +1,96 @@
+//! Job detail page orchestration and section composition.
+
+mod actions;
+mod components;
+mod display;
+mod loaded;
+mod skeleton;
+
+use skeleton::JobDetailPageSkeleton;
+
+use leptos::prelude::*;
+use orbital::components::ContentContainer;
+use orbital::primitives::{MessageBar, MessageBarIntent};
+
+use crate::live::{chronon_job_run_subscription, ChrononJobRunLiveSource};
+use crate::server::{get_job, get_job_revisions, get_scripts};
+use loaded::JobDetailLoaded;
+
+/// Job detail page — orchestrator.
+///
+/// Owns all resources and shared signals, then delegates rendering to focused
+/// sub-components: `JobDetailHeader`, `JobEditForm`, `JobInfoCard`, and
+/// `JobRecentRuns`.
+#[component]
+pub fn ChrononJobDetailPage() -> impl IntoView {
+    let params = leptos_router::hooks::use_params_map();
+    let job_id = move || params.get().get("job_id").unwrap_or_default();
+
+    let job_res = Resource::new(job_id, |id| async move { get_job(id).await });
+    let scripts_res = Resource::new(|| (), |()| async { get_scripts().await });
+
+    let revisions_res = Resource::new(job_id, |id| async move { get_job_revisions(id).await });
+
+    let live = chronon_job_run_subscription();
+    let runs_refresh = RwSignal::new(0u32);
+    let job_id_for_live = Memo::new(move |_| {
+        let id = job_id();
+        if id.is_empty() {
+            None
+        } else {
+            Some(id)
+        }
+    });
+
+    Effect::new(move |_| {
+        let _ = live.trigger.get();
+        let id = job_id();
+        if id.is_empty() {
+            return;
+        }
+        if let Some(ev) = live.latest_event.get() {
+            if crate::live::chronon_run_event_matches_job(&ev, &id) {
+                runs_refresh.update(|n| *n += 1);
+            }
+        }
+    });
+
+    let runs_refresh_signal = Signal::derive(move || runs_refresh.get());
+
+    view! {
+        <ChrononJobRunLiveSource
+            job_id=Signal::derive(move || job_id_for_live.get())
+            trigger=live.trigger
+            latest_event=live.latest_event
+        />
+        <ContentContainer data_testid="chronon-job-detail">
+            <Transition fallback=move || view! { <JobDetailPageSkeleton /> }>
+                {move || job_res.get().map(|r| match r {
+                        Ok(Some(job)) => view! {
+                            <JobDetailLoaded
+                                job=job
+                                job_res=job_res
+                                revisions_res=revisions_res
+                                scripts_res=scripts_res
+                                live=live
+                                runs_refresh_signal=runs_refresh_signal
+                            />
+                        }
+                        .into_any(),
+                        Ok(None) => view! {
+                            <MessageBar intent=MessageBarIntent::Warning>
+                                "Job not found."
+                            </MessageBar>
+                        }
+                        .into_any(),
+                        Err(err) => view! {
+                            <MessageBar intent=MessageBarIntent::Error>
+                                "Failed to load job: " {err.to_string()}
+                            </MessageBar>
+                        }
+                        .into_any(),
+                    })}
+            </Transition>
+        </ContentContainer>
+    }
+}
