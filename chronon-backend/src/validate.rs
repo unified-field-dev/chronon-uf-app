@@ -80,7 +80,7 @@ impl std::error::Error for ChrononIdError {}
 pub const MAX_CHRONON_ID_CHARS: usize = 256;
 
 const fn is_unsafe_ops_id_char(c: char) -> bool {
-    c.is_control() || c == '/' || c == '\\'
+    is_forbidden_name_char(c)
 }
 
 fn check_ops_id(raw: &str) -> Result<&str, ChrononIdErrorKind> {
@@ -115,6 +115,11 @@ enum ChrononIdErrorKind {
 /// Returns a [`ChrononIdError`] variant when the id is empty/whitespace-only,
 /// longer than [`MAX_CHRONON_ID_CHARS`], contains `/` `\` or ASCII controls, or is
 /// exactly `.` / `..`.
+
+fn is_forbidden_name_char(c: char) -> bool {
+    matches!(c, '\0'..='\x1f' | '\x7f' | '/' | '\\')
+}
+
 pub fn validate_job_id(job_id: &str) -> Result<(), ChrononIdError> {
     match check_ops_id(job_id) {
         Ok(_) => Ok(()),
