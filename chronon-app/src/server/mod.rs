@@ -1,4 +1,6 @@
 //! Chronon app server functions and UI-facing DTO exports.
+
+#![allow(clippy::uninlined_format_args)]
 //!
 //! DTOs and pure mapping helpers live in [`chronon_backend`] so contracts stay
 //! unit/integration-testable without the host UI graph. Server functions run on

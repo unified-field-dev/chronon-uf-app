@@ -3,9 +3,7 @@ mod skeleton;
 
 use leptos::prelude::*;
 use orbital::components::{SpacingSize, StatCard};
-use orbital::primitives::{
-    DiscussionAdapter, Flex, FlexWrap, MessageBar, MessageBarIntent, SchedulerDataSource,
-};
+use orbital::primitives::{Flex, FlexWrap, MessageBar, MessageBarIntent};
 
 use kpis::{dashboard_stat_memos, KPI_DEFS};
 use skeleton::ChrononStatsSkeleton;

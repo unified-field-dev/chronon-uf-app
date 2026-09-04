@@ -1,5 +1,7 @@
 //! Lazy-loaded route views for WASM code-splitting (`cargo leptos --split`).
 
+#![allow(clippy::used_underscore_binding)]
+
 use leptos::prelude::*;
 use leptos_router::{lazy_route, LazyRoute};
 

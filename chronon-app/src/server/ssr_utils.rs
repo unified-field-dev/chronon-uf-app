@@ -5,10 +5,10 @@ use leptos::prelude::*;
 use std::collections::HashMap;
 
 #[cfg(feature = "ssr")]
-pub(crate) use chronon_backend::{chronon_run_status_to_ui, model_run_to_app_run};
+pub(super) use chronon_backend::{chronon_run_status_to_ui, model_run_to_app_run};
 
 #[cfg(feature = "ssr")]
-pub(crate) fn script_registry(
+pub(super) fn script_registry(
 ) -> Result<std::sync::Arc<chronon_coordinator::ScriptRegistry>, ServerFnError> {
     if let Some(cfg) = leptos::context::use_context::<std::sync::Arc<higgs::HiggsConfig>>() {
         if let Ok(registry) = cfg.script_registry_arc() {
@@ -20,7 +20,7 @@ pub(crate) fn script_registry(
 }
 
 #[cfg(feature = "ssr")]
-pub(crate) fn chronon_backend(
+pub(super) fn chronon_backend(
 ) -> Result<std::sync::Arc<dyn chronon_coordinator::ChrononCoordinatorBackend>, ServerFnError> {
     if let Some(cfg) = leptos::context::use_context::<std::sync::Arc<higgs::HiggsConfig>>() {
         if let Ok(backend) = cfg.chronon_backend_arc() {
@@ -36,7 +36,7 @@ pub(crate) fn chronon_backend(
 /// `SessionSnapshot` does not carry `email_verified`; use
 /// [`require_email_verified`] for the job CRUD UI gate.
 #[cfg(feature = "ssr")]
-pub(crate) fn require_session(ctx: &higgs::Higgs) -> Result<(), ServerFnError> {
+pub(super) fn require_session(ctx: &higgs::Higgs) -> Result<(), ServerFnError> {
     if ctx.session_user_id().is_some() {
         Ok(())
     } else {
@@ -53,7 +53,7 @@ pub(crate) fn require_session(ctx: &higgs::Higgs) -> Result<(), ServerFnError> {
 /// hosts may force the outcome via `e2e_lab::set_email_verified_override`
 /// without a lepton-auth Backend.
 #[cfg(feature = "ssr")]
-pub(crate) async fn require_email_verified() -> Result<(), ServerFnError> {
+pub(super) async fn require_email_verified() -> Result<(), ServerFnError> {
     #[cfg(feature = "e2e-lab")]
     if let Some(verified) = crate::e2e_lab::email_verified_override() {
         return if verified {
@@ -75,7 +75,7 @@ pub(crate) async fn require_email_verified() -> Result<(), ServerFnError> {
 }
 
 #[cfg(feature = "ssr")]
-pub(crate) async fn resolve_job_id(
+pub(super) async fn resolve_job_id(
     backend: &dyn chronon_coordinator::ChrononCoordinatorBackend,
     job_id_or_name: &str,
 ) -> Result<Option<String>, ServerFnError> {
@@ -91,7 +91,7 @@ pub(crate) async fn resolve_job_id(
 }
 
 #[cfg(feature = "ssr")]
-pub(crate) async fn resolve_job_names_for_model_runs(
+pub(super) async fn resolve_job_names_for_model_runs(
     backend: &dyn chronon_coordinator::ChrononCoordinatorBackend,
     runs: &[chronon_coordinator::models::Run],
 ) -> HashMap<String, String> {

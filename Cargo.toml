@@ -55,6 +55,7 @@ libraries = [{ git = "https://github.com/leptos-rs/leptos-lints", tag = "v0.1.2"
 broken_intra_doc_links = "allow"
 
 [workspace.lints.clippy]
+empty_enums = "allow"
 pedantic = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
 unwrap_used = "deny"

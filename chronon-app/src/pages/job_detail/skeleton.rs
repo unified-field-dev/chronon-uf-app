@@ -15,6 +15,7 @@ const SKELETON_ROW_COUNT: usize = 4;
 
 /// Structured loading shell mirroring the job detail page layout.
 #[component]
+#[allow(clippy::too_many_lines)]
 pub fn JobDetailPageSkeleton() -> impl IntoView {
     let value_skeleton = Signal::from(SkeletonItemSize::S16);
     let (card_content_style, card_content_class) = chronon_card_content();

@@ -152,7 +152,7 @@ pub async fn get_job_revisions(
         .map(|r| {
             chronon_backend::redact_job_revision(JobRevision {
                 revision_id: r.revision_id,
-                revision_number: r.revision_number as u32,
+                revision_number: u32::try_from(r.revision_number).unwrap_or(0),
                 changed_at: r.changed_at.to_rfc3339(),
                 changed_by_actor_json: r.changed_by_actor_json,
                 snapshot_json: r.snapshot_json,

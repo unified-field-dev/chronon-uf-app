@@ -26,6 +26,7 @@ pub struct JobInfoCardInput {
 
 /// Read-only metadata card showing current job configuration.
 #[component]
+#[allow(clippy::too_many_lines)]
 pub fn JobInfoCard(
     /// Display value.
     display: JobInfoCardInput,

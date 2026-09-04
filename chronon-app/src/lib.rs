@@ -209,7 +209,7 @@
 //! Call [`ensure_help_steps_linked`] once when the host mounts Chronon routes
 //! (alongside [`ChrononRoutes`]) so `inventory` submissions from [`mod@help_steps`]
 //! stay in the binary. Signed-in users see pending steps; anonymous and other
-//! access gates suppress the tour via the product shell's AccessGate signal.
+//! access gates suppress the tour via the product shell's `AccessGate` signal.
 //!
 //! **Prerequisites:** `uf-help` hydrate/ssr on this crate; product host with
 //! `uf-integrations` `offering-help` (or `full`) so `HelpTourPlayer` mounts.

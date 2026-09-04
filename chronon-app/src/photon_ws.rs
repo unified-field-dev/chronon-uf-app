@@ -8,7 +8,7 @@ use axum::Router;
 pub const CHRONON_JOB_RUN_WS_PREFIX: &str = "/ws/chronon-job";
 
 /// Preserve the host integration point while omitting Photon Axum wiring.
-pub fn merge_routes<S>(router: Router<S>) -> Router<S>
+pub const fn merge_routes<S>(router: Router<S>) -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
 {

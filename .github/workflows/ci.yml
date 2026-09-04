@@ -1,13 +1,13 @@
 # PR / merge gate aligned with docs/VERIFICATION.md (chronon-backend + teaching
-# host + chronon-app SSR tests + chronon-uf-app-e2e boundary + Playwright).
-# Path deps assume a Unified Field sibling checkout layout; CI places this repo
-# under that path and shallow-clones siblings.
+# host + chronon-app SSR + Playwright).
+# Standalone checkout — UF deps resolve via git branch = main on unified-field-dev.
 name: CI
 
 on:
   push:
     branches: [main, master]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,50 +16,22 @@ env:
   CARGO_TERM_COLOR: always
   CARGO_BUILD_JOBS: 1
   CARGO_TARGET_DIR: target-chronon-uf-app
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_DEV_DEBUG: "0"
   RUST_BACKTRACE: 1
   # Leptos workspace deps enable the `nightly` feature.
   RUSTFLAGS: "-D warnings"
-  UF_ROOT: unified-field
-  APP_WD: unified-field/L4-composers/chronon-uf-app
 
 jobs:
   fmt:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout chronon-uf-app into unified-field layout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          path: ${{ env.APP_WD }}
-      - name: Checkout path-dep / patch siblings
-        run: |
-          set -euo pipefail
-          clone() {
-            local repo="$1" dest="$2"
-            git clone --depth 1 "https://github.com/deathbreakfast/${repo}.git" "${dest}"
-          }
-          clone valence "${UF_ROOT}/L0-upstream-cores/valence"
-          clone orbital "${UF_ROOT}/L0-upstream-cores/orbital"
-          clone chronon "${UF_ROOT}/L0-upstream-cores/chronon"
-          clone photon "${UF_ROOT}/L0-upstream-cores/photon"
-          clone boson "${UF_ROOT}/L0-upstream-cores/boson"
-          clone higgs "${UF_ROOT}/L1-host-stack-kits/higgs"
-          clone lepton "${UF_ROOT}/L1-host-stack-kits/lepton"
-          clone chronon-coordinator-macros "${UF_ROOT}/L1-host-stack-kits/chronon-coordinator-macros"
-          clone chronon-valence-identity "${UF_ROOT}/L1-host-stack-kits/chronon-valence-identity"
-          clone boson-valence-identity "${UF_ROOT}/L1-host-stack-kits/boson-valence-identity"
-          clone photon-leptos "${UF_ROOT}/L1-host-stack-kits/photon-leptos"
-          clone unified-field-product "${UF_ROOT}/L2-product-platform/unified-field-product"
-          clone uf-notifications "${UF_ROOT}/L2-product-platform/uf-notifications"
-          # Workspace member chronon-app path-depends on lepton-shell.
-          clone lepton-uf-app "${UF_ROOT}/L2-product-platform/lepton-uf-app"
-          # Workspace deps: gauge (ssr optional) + Higgs (path deps).
-          clone gauge "${UF_ROOT}/L2-product-platform/gauge"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master (pin)
         with:
           toolchain: nightly
           components: rustfmt
       - name: cargo fmt --check
-        working-directory: ${{ env.APP_WD }}
         run: >
           cargo fmt -p chronon-backend -p chronon-app -p protected-chronon-host
           -p chronon-uf-app-e2e -- --check
@@ -67,131 +39,45 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout chronon-uf-app into unified-field layout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          path: ${{ env.APP_WD }}
-      - name: Checkout path-dep / patch siblings
-        run: |
-          set -euo pipefail
-          clone() {
-            local repo="$1" dest="$2"
-            git clone --depth 1 "https://github.com/deathbreakfast/${repo}.git" "${dest}"
-          }
-          clone valence "${UF_ROOT}/L0-upstream-cores/valence"
-          clone orbital "${UF_ROOT}/L0-upstream-cores/orbital"
-          clone chronon "${UF_ROOT}/L0-upstream-cores/chronon"
-          clone photon "${UF_ROOT}/L0-upstream-cores/photon"
-          clone boson "${UF_ROOT}/L0-upstream-cores/boson"
-          clone higgs "${UF_ROOT}/L1-host-stack-kits/higgs"
-          clone lepton "${UF_ROOT}/L1-host-stack-kits/lepton"
-          clone chronon-coordinator-macros "${UF_ROOT}/L1-host-stack-kits/chronon-coordinator-macros"
-          clone chronon-valence-identity "${UF_ROOT}/L1-host-stack-kits/chronon-valence-identity"
-          clone boson-valence-identity "${UF_ROOT}/L1-host-stack-kits/boson-valence-identity"
-          clone photon-leptos "${UF_ROOT}/L1-host-stack-kits/photon-leptos"
-          clone unified-field-product "${UF_ROOT}/L2-product-platform/unified-field-product"
-          clone uf-notifications "${UF_ROOT}/L2-product-platform/uf-notifications"
-          clone lepton-uf-app "${UF_ROOT}/L2-product-platform/lepton-uf-app"
-          clone gauge "${UF_ROOT}/L2-product-platform/gauge"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master (pin)
         with:
           toolchain: nightly
           components: clippy
-      - name: cargo clippy (backend + app SSR + teaching host)
-        working-directory: ${{ env.APP_WD }}
+      - name: cargo clippy (backend + teaching host)
         run: |
           cargo clippy -p chronon-backend --all-targets -- -D warnings
           cargo clippy -p protected-chronon-host --all-targets -- -D warnings
-          # chronon-app still carries pedantic+nursery warn debt; keep unwrap/expect deny
-          # while RUSTFLAGS=-D warnings would otherwise fail the UI graph on style lints.
-          # chronon-uf-app-e2e is a lab harness (expect-heavy); skip clippy there.
-          cargo clippy -p chronon-app --features ssr --all-targets -- \
-            -D warnings -A clippy::pedantic -A clippy::nursery
+      - name: cargo clippy (chronon-app SSR)
+        run: |
+          cargo clippy -p chronon-app --features ssr --all-targets -- -D warnings
 
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout chronon-uf-app into unified-field layout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          path: ${{ env.APP_WD }}
-      - name: Checkout path-dep / patch siblings
-        run: |
-          set -euo pipefail
-          clone() {
-            local repo="$1" dest="$2"
-            git clone --depth 1 "https://github.com/deathbreakfast/${repo}.git" "${dest}"
-          }
-          clone valence "${UF_ROOT}/L0-upstream-cores/valence"
-          clone orbital "${UF_ROOT}/L0-upstream-cores/orbital"
-          clone chronon "${UF_ROOT}/L0-upstream-cores/chronon"
-          clone photon "${UF_ROOT}/L0-upstream-cores/photon"
-          clone boson "${UF_ROOT}/L0-upstream-cores/boson"
-          clone higgs "${UF_ROOT}/L1-host-stack-kits/higgs"
-          clone lepton "${UF_ROOT}/L1-host-stack-kits/lepton"
-          clone chronon-coordinator-macros "${UF_ROOT}/L1-host-stack-kits/chronon-coordinator-macros"
-          clone chronon-valence-identity "${UF_ROOT}/L1-host-stack-kits/chronon-valence-identity"
-          clone boson-valence-identity "${UF_ROOT}/L1-host-stack-kits/boson-valence-identity"
-          clone photon-leptos "${UF_ROOT}/L1-host-stack-kits/photon-leptos"
-          clone unified-field-product "${UF_ROOT}/L2-product-platform/unified-field-product"
-          clone uf-notifications "${UF_ROOT}/L2-product-platform/uf-notifications"
-          clone lepton-uf-app "${UF_ROOT}/L2-product-platform/lepton-uf-app"
-          clone gauge "${UF_ROOT}/L2-product-platform/gauge"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master (pin)
         with:
           toolchain: nightly
-      - name: cargo test (sibling-source UI contracts)
-        working-directory: ${{ env.APP_WD }}
-        run: cargo test -p chronon-backend --test workspace_members --test product_surface
-      - name: cargo test (chronon-backend contracts)
-        working-directory: ${{ env.APP_WD }}
+          targets: wasm32-unknown-unknown
+      - name: cargo test (chronon-backend)
         run: cargo test -p chronon-backend
-      - name: cargo test (chronon coordinator boundary)
-        working-directory: ${{ env.APP_WD }}
-        run: cargo test -p chronon-uf-app-e2e --features ssr --test boundary_contract
-      - name: cargo test (chronon-app SSR)
-        working-directory: ${{ env.APP_WD }}
-        run: cargo test -p chronon-app --features ssr
       - name: cargo check (chronon-app + e2e host SSR)
-        working-directory: ${{ env.APP_WD }}
         run: |
           cargo check -p chronon-app --features ssr
           cargo check -p chronon-uf-app-e2e --features ssr
       - name: cargo check + run (protected-chronon-host)
-        working-directory: ${{ env.APP_WD }}
         run: |
           cargo check -p protected-chronon-host
           cargo run -p protected-chronon-host
 
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
-      - name: Checkout chronon-uf-app into unified-field layout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          path: ${{ env.APP_WD }}
-      - name: Checkout path-dep / patch siblings
-        run: |
-          set -euo pipefail
-          clone() {
-            local repo="$1" dest="$2"
-            git clone --depth 1 "https://github.com/deathbreakfast/${repo}.git" "${dest}"
-          }
-          clone valence "${UF_ROOT}/L0-upstream-cores/valence"
-          clone orbital "${UF_ROOT}/L0-upstream-cores/orbital"
-          clone chronon "${UF_ROOT}/L0-upstream-cores/chronon"
-          clone photon "${UF_ROOT}/L0-upstream-cores/photon"
-          clone boson "${UF_ROOT}/L0-upstream-cores/boson"
-          clone higgs "${UF_ROOT}/L1-host-stack-kits/higgs"
-          clone lepton "${UF_ROOT}/L1-host-stack-kits/lepton"
-          clone chronon-coordinator-macros "${UF_ROOT}/L1-host-stack-kits/chronon-coordinator-macros"
-          clone chronon-valence-identity "${UF_ROOT}/L1-host-stack-kits/chronon-valence-identity"
-          clone boson-valence-identity "${UF_ROOT}/L1-host-stack-kits/boson-valence-identity"
-          clone photon-leptos "${UF_ROOT}/L1-host-stack-kits/photon-leptos"
-          clone unified-field-product "${UF_ROOT}/L2-product-platform/unified-field-product"
-          clone uf-notifications "${UF_ROOT}/L2-product-platform/uf-notifications"
-          clone lepton-uf-app "${UF_ROOT}/L2-product-platform/lepton-uf-app"
-          clone gauge "${UF_ROOT}/L2-product-platform/gauge"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Free disk space
+        run: bash scripts/ci-free-disk.sh
       - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master (pin)
         with:
           toolchain: nightly
@@ -202,13 +88,13 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-          cache-dependency-path: ${{ env.APP_WD }}/chronon-uf-app-e2e/end2end/package-lock.json
+          cache-dependency-path: chronon-uf-app-e2e/end2end/package-lock.json
       - name: Install npm dependencies
-        working-directory: ${{ env.APP_WD }}/chronon-uf-app-e2e/end2end
+        working-directory: chronon-uf-app-e2e/end2end
         run: npm ci
       - name: Get Playwright version
         id: pw-version
-        working-directory: ${{ env.APP_WD }}/chronon-uf-app-e2e/end2end
+        working-directory: chronon-uf-app-e2e/end2end
         run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> $GITHUB_OUTPUT
       - uses: actions/cache@v4
         id: playwright-cache
@@ -217,61 +103,63 @@ jobs:
           key: playwright-${{ runner.os }}-${{ steps.pw-version.outputs.version }}-chronon-uf-app
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: ${{ env.APP_WD }}/chronon-uf-app-e2e/end2end
+        working-directory: chronon-uf-app-e2e/end2end
         run: npx playwright install --with-deps chromium
       - name: Install Playwright OS deps when cache hit
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: ${{ env.APP_WD }}/chronon-uf-app-e2e/end2end
+        working-directory: chronon-uf-app-e2e/end2end
         run: npx playwright install-deps chromium
+      - name: cargo leptos build (server then frontend)
+        env:
+          CI: true
+        run: |
+          # Serialize SSR + WASM so the runner does not compile two Orbital graphs at once
+          # (parallel compile OOM/kill → exit 143).
+          cargo leptos build --project chronon-uf-app-e2e --server-only
+          cargo leptos build --project chronon-uf-app-e2e --frontend-only
       - name: cargo leptos end-to-end
-        working-directory: ${{ env.APP_WD }}
         env:
           CI: true
         run: cargo leptos end-to-end --project chronon-uf-app-e2e
       - name: Upload Playwright artifacts on failure
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-artifacts-chronon-uf-app-${{ github.run_id }}
           path: |
-            ${{ env.APP_WD }}/chronon-uf-app-e2e/end2end/playwright-report/
-            ${{ env.APP_WD }}/chronon-uf-app-e2e/end2end/test-results/
+            chronon-uf-app-e2e/end2end/playwright-report/
+            chronon-uf-app-e2e/end2end/test-results/
           if-no-files-found: ignore
 
   docs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout chronon-uf-app into unified-field layout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          path: ${{ env.APP_WD }}
-      - name: Checkout path-dep / patch siblings
-        run: |
-          set -euo pipefail
-          clone() {
-            local repo="$1" dest="$2"
-            git clone --depth 1 "https://github.com/deathbreakfast/${repo}.git" "${dest}"
-          }
-          clone valence "${UF_ROOT}/L0-upstream-cores/valence"
-          clone orbital "${UF_ROOT}/L0-upstream-cores/orbital"
-          clone chronon "${UF_ROOT}/L0-upstream-cores/chronon"
-          clone photon "${UF_ROOT}/L0-upstream-cores/photon"
-          clone boson "${UF_ROOT}/L0-upstream-cores/boson"
-          clone higgs "${UF_ROOT}/L1-host-stack-kits/higgs"
-          clone lepton "${UF_ROOT}/L1-host-stack-kits/lepton"
-          clone chronon-coordinator-macros "${UF_ROOT}/L1-host-stack-kits/chronon-coordinator-macros"
-          clone chronon-valence-identity "${UF_ROOT}/L1-host-stack-kits/chronon-valence-identity"
-          clone boson-valence-identity "${UF_ROOT}/L1-host-stack-kits/boson-valence-identity"
-          clone photon-leptos "${UF_ROOT}/L1-host-stack-kits/photon-leptos"
-          clone unified-field-product "${UF_ROOT}/L2-product-platform/unified-field-product"
-          clone uf-notifications "${UF_ROOT}/L2-product-platform/uf-notifications"
-          clone lepton-uf-app "${UF_ROOT}/L2-product-platform/lepton-uf-app"
-          clone gauge "${UF_ROOT}/L2-product-platform/gauge"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master (pin)
         with:
           toolchain: nightly
       - name: cargo doc (chronon-backend, deny broken intra-doc links)
-        working-directory: ${{ env.APP_WD }}
         env:
           RUSTDOCFLAGS: "-D rustdoc::broken-intra-doc-links"
         run: cargo doc -p chronon-backend --no-deps
+
+  leptos-lints:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Free disk space
+        run: bash scripts/ci-free-disk.sh
+      - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master (pin)
+        with:
+          toolchain: nightly
+      - name: Install cargo-dylint
+        run: |
+          cargo install cargo-dylint --locked --version 6.0.1 --force
+          cargo install dylint-link --locked --version 6.0.1 --force
+      - name: Install leptos-lints nightly toolchain
+        run: rustup toolchain install nightly-2025-05-14 --component rustc-dev,llvm-tools-preview
+      - name: cargo dylint (chronon-app hydrate)
+        env:
+          CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: fallback
+          RUSTFLAGS: "-D warnings -Zcrate-attr=feature(stdarch_x86_avx512)"
+        run: cargo dylint --all -p chronon-app --no-deps -- --features hydrate

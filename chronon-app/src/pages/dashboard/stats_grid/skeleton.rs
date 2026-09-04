@@ -1,8 +1,6 @@
 use leptos::prelude::*;
 use orbital::components::{Caption1, Skeleton, SkeletonItem, SkeletonItemSize, SpacingSize};
-use orbital::primitives::{
-    Card, DiscussionAdapter, Flex, FlexAlign, FlexWrap, Icon, SchedulerDataSource,
-};
+use orbital::primitives::{Card, Flex, FlexAlign, FlexWrap, Icon};
 
 use super::kpis::KPI_DEFS;
 

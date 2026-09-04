@@ -27,6 +27,7 @@ pub enum RunsTableScope {
 
 /// Layout / chrome flags for [`RunsDataTable`] (avoids a long boolean prop list).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct RunsTableChrome {
     /// Whether to show the job column.
     pub show_job_column: bool,
