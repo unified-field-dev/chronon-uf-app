@@ -1,0 +1,19 @@
+[package]
+name = "protected-chronon-host"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT"
+description = "Minimal protected /chronon host proving auth gate + dashboard API"
+
+[lints]
+workspace = true
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["tokio", "http1", "json"] }
+chrono = { workspace = true }
+chronon-backend = { path = "../../chronon-backend" }
+http-body-util = "0.1"
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tower = { version = "0.5", features = ["util"] }
