@@ -702,7 +702,7 @@ version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "faf9468729b8cbcea668e36183cb69d317348c2e08e994829fb56ebfdfbaac34"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -1195,7 +1195,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -3951,7 +3951,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4691,7 +4691,7 @@ dependencies = [
 [[package]]
 name = "spectra-backend-mem"
 version = "0.1.3"
-source = "git+https://github.com/unified-field-dev/Spectra?branch=main#0a603cea0388840f81f246e216eb3204bd819783"
+source = "git+https://github.com/unified-field-dev/Spectra?branch=main#351d15de10af1992d72951ed3a65c04e37272428"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4704,7 +4704,7 @@ dependencies = [
 [[package]]
 name = "spectra-macros"
 version = "0.1.3"
-source = "git+https://github.com/unified-field-dev/Spectra?branch=main#0a603cea0388840f81f246e216eb3204bd819783"
+source = "git+https://github.com/unified-field-dev/Spectra?branch=main#351d15de10af1992d72951ed3a65c04e37272428"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4714,7 +4714,7 @@ dependencies = [
 [[package]]
 name = "spectra-runtime"
 version = "0.1.3"
-source = "git+https://github.com/unified-field-dev/Spectra?branch=main#0a603cea0388840f81f246e216eb3204bd819783"
+source = "git+https://github.com/unified-field-dev/Spectra?branch=main#351d15de10af1992d72951ed3a65c04e37272428"
 dependencies = [
  "chrono",
  "serde_json",
@@ -5637,7 +5637,7 @@ checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
 [[package]]
 name = "uf-appearance"
 version = "0.3.0"
-source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#c78c488101c5310222dd7bfeaa50b97182da5edd"
+source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#ad7d6842eaea24c3b3d4cc717c14713e629962e4"
 dependencies = [
  "icondata",
  "inventory",
@@ -5649,7 +5649,7 @@ dependencies = [
 [[package]]
 name = "uf-help"
 version = "0.3.0"
-source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#c78c488101c5310222dd7bfeaa50b97182da5edd"
+source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#ad7d6842eaea24c3b3d4cc717c14713e629962e4"
 dependencies = [
  "async-trait",
  "chrono",
@@ -5671,7 +5671,7 @@ dependencies = [
 [[package]]
 name = "uf-help-macros"
 version = "0.3.0"
-source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#c78c488101c5310222dd7bfeaa50b97182da5edd"
+source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#ad7d6842eaea24c3b3d4cc717c14713e629962e4"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -5682,7 +5682,7 @@ dependencies = [
 [[package]]
 name = "uf-integrations"
 version = "0.3.0"
-source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#c78c488101c5310222dd7bfeaa50b97182da5edd"
+source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#ad7d6842eaea24c3b3d4cc717c14713e629962e4"
 dependencies = [
  "icondata",
  "inventory",
@@ -5773,7 +5773,7 @@ dependencies = [
 [[package]]
 name = "uf-product"
 version = "0.3.0"
-source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#c78c488101c5310222dd7bfeaa50b97182da5edd"
+source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#ad7d6842eaea24c3b3d4cc717c14713e629962e4"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5810,7 +5810,7 @@ dependencies = [
 [[package]]
 name = "uf-product-macros"
 version = "0.1.0"
-source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#c78c488101c5310222dd7bfeaa50b97182da5edd"
+source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#ad7d6842eaea24c3b3d4cc717c14713e629962e4"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -5838,7 +5838,7 @@ dependencies = [
 [[package]]
 name = "uf-search-core"
 version = "0.1.0"
-source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#c78c488101c5310222dd7bfeaa50b97182da5edd"
+source = "git+https://github.com/unified-field-dev/unified-field-product?branch=main#ad7d6842eaea24c3b3d4cc717c14713e629962e4"
 dependencies = [
  "anyhow",
  "serde",
@@ -5849,7 +5849,7 @@ dependencies = [
 [[package]]
 name = "uf-spectra"
 version = "0.1.3"
-source = "git+https://github.com/unified-field-dev/Spectra?branch=main#0a603cea0388840f81f246e216eb3204bd819783"
+source = "git+https://github.com/unified-field-dev/Spectra?branch=main#351d15de10af1992d72951ed3a65c04e37272428"
 dependencies = [
  "chrono",
  "serde",
@@ -5863,7 +5863,7 @@ dependencies = [
 [[package]]
 name = "uf-spectra-core"
 version = "0.1.3"
-source = "git+https://github.com/unified-field-dev/Spectra?branch=main#0a603cea0388840f81f246e216eb3204bd819783"
+source = "git+https://github.com/unified-field-dev/Spectra?branch=main#351d15de10af1992d72951ed3a65c04e37272428"
 dependencies = [
  "async-trait",
  "chrono",
@@ -5881,7 +5881,7 @@ dependencies = [
 [[package]]
 name = "uf-valence"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "uf-valence-backend-mem",
  "uf-valence-backend-sqlite",
@@ -5892,7 +5892,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-backend-mem"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "async-trait",
  "serde_json",
@@ -5903,7 +5903,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-backend-sql"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "serde",
  "serde_json",
@@ -5918,7 +5918,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-backend-sqlite"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "async-trait",
  "serde_json",
@@ -5931,7 +5931,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-codegen"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "anyhow",
  "prettyplease",
@@ -5945,7 +5945,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-core"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "async-trait",
  "chrono",
@@ -5964,7 +5964,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-macros"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5975,7 +5975,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-schema-dsl"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5985,7 +5985,7 @@ dependencies = [
 [[package]]
 name = "uf-valence-telemetry"
 version = "0.1.5"
-source = "git+https://github.com/unified-field-dev/valence?branch=main#0bc0111f73f80e734e1910764826317354857ac5"
+source = "git+https://github.com/unified-field-dev/valence?branch=main#a04a60a452360275f340d1207a1d267134170db3"
 dependencies = [
  "serde_json",
 ]
@@ -6299,7 +6299,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
