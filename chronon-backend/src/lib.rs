@@ -190,7 +190,9 @@ pub use page_query::{
     apply_jobs_page_query, apply_runs_page_query, apply_scripts_page_query,
     runs_page_needs_memory_scan,
 };
-pub use revision::{redact_job_revision, redact_revision_snapshot};
+pub use revision::{
+    redact_job_params_for_non_admin, redact_job_revision, redact_revision_snapshot,
+};
 pub use schedule::{
     apply_create_schedule, apply_update_payload_to_job, build_create_job_model,
     parse_run_once_datetime, recompute_next_run_for_cron, ChrononScheduleError,

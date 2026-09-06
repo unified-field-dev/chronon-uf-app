@@ -13,18 +13,8 @@ use super::query::apply_jobs_page_query;
 #[cfg(feature = "ssr")]
 use super::ssr_utils::{require_email_verified, require_session, resolve_job_id};
 use super::{CreateJobRequest, Job, JobRevision, UpdateJobRequest, CHRONON_ADMIN_PERMISSION};
-
-/// Clear job params and cron on the wire when the session lacks ChrononAdmin.
 #[cfg(feature = "ssr")]
-fn redact_job_params_for_non_admin(mut job: Job, is_admin: bool) -> Job {
-    if !is_admin {
-        job.params = serde_json::json!({});
-        job.cron = String::new();
-        job.next_run_at = None;
-        job.timezone = None;
-    }
-    job
-}
+use chronon_backend::redact_job_params_for_non_admin;
 
 /// Paginated jobs list with quick-search and structured filters.
 #[uf_product_macros::server]

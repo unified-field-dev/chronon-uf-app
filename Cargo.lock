@@ -517,6 +517,7 @@ name = "chronon-backend"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "chronon-coordinator",
  "chronon-core",
  "chronon-scheduler",
  "orbital-data",
