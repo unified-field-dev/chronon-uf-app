@@ -1,8 +1,10 @@
 //! Job revision and list/detail redaction for client-facing server responses.
 //!
-//! Mirrors upstream Chronon HTTP behavior: full snapshots remain in the store;
-//! wire responses omit actor identity and sensitive snapshot fields. Non-admin
-//! job list/detail responses also clear params and schedule fields.
+//! Full snapshots stay in the Chronon store. Wire responses omit actor identity
+//! and sensitive snapshot fields. Non-admin job list/detail responses also clear
+//! params and schedule fields via [`redact_job_params_for_non_admin`].
+//!
+//! Teaching entry: crate root [Redact job params](../index.html#redact-job-params).
 
 use crate::types::{Job, JobRevision};
 
