@@ -135,10 +135,6 @@ lepton = { git = "https://github.com/unified-field-dev/lepton", branch = "main",
 lepton-shell = { git = "https://github.com/unified-field-dev/lepton-uf-app", branch = "main", default-features = false }
 lepton-auth = { git = "https://github.com/unified-field-dev/lepton", branch = "main", default-features = false }
 
-# Unify transitive deathbreakfast chronon-coordinator pins (higgs) onto uf-dev git.
-[patch."https://github.com/deathbreakfast/chronon-coordinator"]
-chronon-coordinator = { git = "https://github.com/unified-field-dev/chronon-coordinator", branch = "main" }
-
 # Unify crates.io uf-valence / chronon / orbital onto uf-dev git
 # (avoids duplicate ThemeInjection / Valence types — lepton-auth-ui pulls crates.io orbital).
 [patch.crates-io]
