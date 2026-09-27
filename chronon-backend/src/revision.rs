@@ -8,7 +8,7 @@
 
 use crate::types::{Job, JobRevision};
 
-/// Clear job params and cron on the wire when the session lacks ChrononAdmin.
+/// Clear job params and cron on the wire when the session lacks `ChrononAdmin`.
 ///
 /// Used by chronon-app job list/detail server functions so non-admin viewers
 /// cannot read script parameters or cron expressions from the ops UI.
@@ -68,7 +68,7 @@ mod tests {
     fn redact_job_params_for_non_admin_clears_params_and_cron_sad() {
         let redacted = redact_job_params_for_non_admin(sample_job(), false);
         assert_eq!(redacted.params, serde_json::json!({}));
-        assert!(redacted.cron.is_empty());
+        assert_eq!(redacted.cron, "");
         assert!(redacted.next_run_at.is_none());
         assert!(redacted.timezone.is_none());
         assert_eq!(redacted.name, "nightly");

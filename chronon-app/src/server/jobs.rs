@@ -12,7 +12,9 @@ use super::helpers::{
 use super::query::apply_jobs_page_query;
 #[cfg(feature = "ssr")]
 use super::ssr_utils::{require_email_verified, require_session, resolve_job_id};
-use super::{CreateJobRequest, Job, JobRevision, UpdateJobRequest, CHRONON_ADMIN_PERMISSION};
+#[cfg(feature = "ssr")]
+use super::CHRONON_ADMIN_PERMISSION;
+use super::{CreateJobRequest, Job, JobRevision, UpdateJobRequest};
 #[cfg(feature = "ssr")]
 use chronon_backend::redact_job_params_for_non_admin;
 

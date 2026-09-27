@@ -167,7 +167,7 @@
 //! signed-in Chronon viewer, while script parameters and cron belong to operators
 //! with `ChrononAdmin`. Call [`redact_job_params_for_non_admin`] after mapping a
 //! coordinator job into a UI [`Job`] and before returning it from a server
-//! function. Pass `is_admin` from the session's ChrononAdmin check.
+//! function. Pass `is_admin` from the session's `ChrononAdmin` check.
 //!
 //! **Prerequisites:** An in-memory [`Job`] DTO (no Chronon IO in this helper).
 //!

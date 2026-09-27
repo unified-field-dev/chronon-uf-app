@@ -68,6 +68,9 @@ must_use_candidate = "allow"
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 return_self_not_must_use = "allow"
+# Its fix is `Option::map_or_default`, which the leptos-lints toolchain
+# (nightly-2025-05-14) does not have.
+map_unwrap_or = "allow"
 
 [profile.wasm-release]
 inherits = "release"

@@ -588,7 +588,7 @@ fn job_status_serde_roundtrip_happy_path() {
     assert_eq!(back, JobStatus::Active);
 }
 
-/// Same guard `run_job_now` uses: System-shaped actor_json must fail closed.
+/// Same guard `run_job_now` uses: System-shaped `actor_json` must fail closed.
 #[test]
 fn validate_external_job_actor_json_rejects_system_for_run_now_sad() {
     let system = serde_json::json!({"System": {"operation": "platform_ttl"}});
