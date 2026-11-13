@@ -4,7 +4,7 @@ use leptos::prelude::*;
 use orbital_paging::{Page, PageRequest};
 
 #[cfg(feature = "ssr")]
-use super::query::{apply_runs_page_query, runs_page_needs_memory_scan};
+use super::query::apply_runs_page_query;
 #[cfg(feature = "ssr")]
 use super::ssr_utils::{
     model_run_to_app_run, require_session, resolve_job_id, resolve_job_names_for_model_runs,
@@ -12,33 +12,13 @@ use super::ssr_utils::{
 use super::Run;
 
 #[cfg(feature = "ssr")]
+use chronon_backend::{read_runs_page, RunsPageRows, RunsRead};
+#[cfg(feature = "ssr")]
 use chronon_coordinator::ChrononCoordinatorBackend;
 
-/// When quick-search or structured filters are active, scan a bounded slice in memory (0.1.n).
-#[cfg(feature = "ssr")]
-const RUNS_FILTER_SCAN_CAP: usize = 5000;
-
-#[cfg(feature = "ssr")]
-async fn fetch_db_runs_for_page(
-    backend: &dyn ChrononCoordinatorBackend,
-    job_id: Option<&str>,
-    request: &PageRequest,
-) -> Result<Vec<chronon_coordinator::models::Run>, ServerFnError> {
-    if runs_page_needs_memory_scan(request) {
-        backend
-            .list_runs(job_id, None, 0, RUNS_FILTER_SCAN_CAP)
-            .await
-            .map_err(|e| ServerFnError::new(format!("Failed to list runs: {}", e)))
-    } else {
-        let offset = request.offset as usize;
-        let limit = (request.limit + 1) as usize;
-        backend
-            .list_runs(job_id, None, offset, limit)
-            .await
-            .map_err(|e| ServerFnError::new(format!("Failed to list runs: {}", e)))
-    }
-}
-
+/// Reads one runs page: keyset cursor for status/job filters, offset scan otherwise.
+///
+/// See [`chronon_backend::read_runs_page`] for which requests take which path.
 #[cfg(feature = "ssr")]
 async fn runs_page_from_request(
     backend: &dyn ChrononCoordinatorBackend,
@@ -46,8 +26,31 @@ async fn runs_page_from_request(
     job_name_override: Option<String>,
     request: PageRequest,
 ) -> Result<Page<Run>, ServerFnError> {
-    let needs_memory_scan = runs_page_needs_memory_scan(&request);
-    let db_runs = fetch_db_runs_for_page(backend, job_id, &request).await?;
+    let rows = read_runs_page(&request, job_id, move |read| async move {
+        match read {
+            RunsRead::Offset {
+                status,
+                offset,
+                limit,
+            } => backend.list_runs(job_id, status, offset, limit).await,
+            RunsRead::After {
+                status,
+                after,
+                limit,
+            } => {
+                backend
+                    .list_runs_after(job_id, status, Some(&after), limit)
+                    .await
+            }
+        }
+    })
+    .await
+    .map_err(|e| ServerFnError::new(format!("Failed to list runs: {}", e)))?;
+
+    let (db_runs, next_cursor, scanned) = match rows {
+        RunsPageRows::Page { rows, next_cursor } => (rows, next_cursor, false),
+        RunsPageRows::Scanned(rows) => (rows, None, true),
+    };
 
     let job_names = if job_name_override.is_some() {
         std::collections::HashMap::new()
@@ -68,7 +71,7 @@ async fn runs_page_from_request(
         })
         .collect();
 
-    if needs_memory_scan {
+    if scanned {
         apply_runs_page_query(&mut runs, &request);
         let total_count = if request.is_first_page() {
             Some(runs.len() as u64)
@@ -82,14 +85,14 @@ async fn runs_page_from_request(
             .collect();
         Ok(Page::from_oversized(sliced, request.limit, total_count))
     } else {
-        // DB-offset path has no cheap total; still mark empty first pages so the
+        // Cursor path has no cheap total; still mark empty first pages so the
         // DataTable empty overlay does not stay in "waiting for total" limbo.
         let total_count = if request.is_first_page() && runs.is_empty() {
             Some(0)
         } else {
             None
         };
-        Ok(Page::from_oversized(runs, request.limit, total_count))
+        Ok(Page::from_oversized(runs, request.limit, total_count).with_next_cursor(next_cursor))
     }
 }
 

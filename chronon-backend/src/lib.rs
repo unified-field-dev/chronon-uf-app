@@ -20,6 +20,9 @@
 //! - **`DataTable` query adapters** — Supports quick-search and structured filters for job, run,
 //!   and script tables via [`apply_jobs_page_query`], [`apply_runs_page_query`], and
 //!   [`apply_scripts_page_query`].
+//! - **Runs cursor paging** — Reads runs pages with a keyset cursor and pushes the status and
+//!   job filters down to the coordinator via [`read_runs_page`]; quick search and other filters
+//!   stay on the offset path.
 //! - **Job param redaction** — Clears params and schedule fields for non-admin job
 //!   list/detail DTOs via [`redact_job_params_for_non_admin`].
 //!   [Get started](#redact-job-params)
@@ -239,6 +242,7 @@ mod map;
 mod page_query;
 mod pools;
 mod revision;
+mod runs_cursor;
 mod schedule;
 mod types;
 mod validate;
@@ -265,6 +269,10 @@ pub use pools::{
 };
 pub use revision::{
     redact_job_params_for_non_admin, redact_job_revision, redact_revision_snapshot,
+};
+pub use runs_cursor::{
+    decode_run_key, encode_run_key, read_runs_page, runs_cursor_scope, runs_pushdown_statuses,
+    RunsPageRows, RunsRead, RUNS_FILTER_SCAN_CAP,
 };
 pub use schedule::{
     apply_create_schedule, apply_update_payload_to_job, build_create_job_model,

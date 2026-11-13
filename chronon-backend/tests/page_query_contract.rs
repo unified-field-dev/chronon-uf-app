@@ -54,6 +54,7 @@ fn jobs_datatable_quick_search_happy_path() {
         quick_search: Some("alpha".into()),
         filter: None,
         sort: None,
+        cursor: None,
     };
     apply_jobs_page_query(&mut jobs, &request);
     assert_eq!(jobs.len(), 1);
@@ -87,6 +88,7 @@ fn jobs_datatable_or_logic_keeps_either_match_happy_path() {
             ],
         }),
         sort: None,
+        cursor: None,
     };
     apply_jobs_page_query(&mut jobs, &request);
     assert_eq!(jobs.len(), 2);
@@ -111,6 +113,7 @@ fn jobs_datatable_status_equals_happy_path() {
             }],
         }),
         sort: None,
+        cursor: None,
     };
     apply_jobs_page_query(&mut jobs, &request);
     assert_eq!(jobs.len(), 1);
@@ -133,6 +136,7 @@ fn jobs_datatable_status_unknown_empty_sad() {
             }],
         }),
         sort: None,
+        cursor: None,
     };
     apply_jobs_page_query(&mut jobs, &request);
     assert_eq!(jobs.len(), 0);
@@ -157,6 +161,7 @@ fn runs_datatable_status_equals_happy_path() {
             }],
         }),
         sort: None,
+        cursor: None,
     };
     apply_runs_page_query(&mut runs, &request);
     assert_eq!(runs.len(), 1);
@@ -182,6 +187,7 @@ fn runs_datatable_not_equals_status_happy_path() {
             }],
         }),
         sort: None,
+        cursor: None,
     };
     apply_runs_page_query(&mut runs, &request);
     assert_eq!(runs.len(), 1);
@@ -200,6 +206,7 @@ fn runs_datatable_quick_search_happy_path() {
         quick_search: Some("beta".into()),
         filter: None,
         sort: None,
+        cursor: None,
     };
     apply_runs_page_query(&mut runs, &request);
     assert_eq!(runs.len(), 1);
@@ -228,6 +235,7 @@ fn scripts_datatable_quick_search_happy_path() {
         quick_search: Some("nightly".into()),
         filter: None,
         sort: None,
+        cursor: None,
     };
     apply_scripts_page_query(&mut scripts, &request);
     assert_eq!(scripts.len(), 1);
@@ -255,6 +263,7 @@ fn scripts_datatable_name_filter_unknown_empty_sad() {
             }],
         }),
         sort: None,
+        cursor: None,
     };
     apply_scripts_page_query(&mut scripts, &request);
     assert_eq!(scripts.len(), 0);
@@ -275,6 +284,7 @@ fn runs_page_needs_memory_scan_with_filter_happy_path() {
             }],
         }),
         sort: None,
+        cursor: None,
     };
     assert!(runs_page_needs_memory_scan(&request));
 }
@@ -287,6 +297,7 @@ fn runs_page_needs_memory_scan_blank_quick_search_sad() {
         quick_search: Some("   ".into()),
         filter: None,
         sort: None,
+        cursor: None,
     };
     assert!(!runs_page_needs_memory_scan(&request));
 }

@@ -5,3 +5,6 @@ jobs.spec.ts › pw-chronon-jobs-pool › pw-chronon-jobs-happy-edit-pool
 jobs.spec.ts › pw-chronon-jobs-pool › pw-chronon-jobs-happy-create-pool-picker
 scripts.spec.ts › pw-chronon-scripts › pw-chronon-scripts-happy-list
 scripts.spec.ts › pw-chronon-scripts › pw-chronon-scripts-sad-empty-search-not-crash
+runs_paging.spec.ts › pw-chronon-runs-paging (light) › pw-chronon-runs-paging-happy-status-filter-next-previous
+runs_paging.spec.ts › pw-chronon-runs-paging (dark) › pw-chronon-runs-paging-happy-status-filter-next-previous
+runs_paging.spec.ts › pw-chronon-runs-paging (phone) › pw-chronon-runs-paging-happy-phone-next-previous

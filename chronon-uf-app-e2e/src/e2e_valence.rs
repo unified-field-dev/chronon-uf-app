@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use chronon_coordinator::{
     snapshot_job_actor_from_valence, validate_external_job_actor_json, ChrononCoordinatorBackend,
-    Job, JobRevision, Result as ChrononResult, Run, ScheduleKind, ScriptRegistry,
+    Job, JobRevision, Result as ChrononResult, Run, RunKey, ScheduleKind, ScriptRegistry,
 };
 use chronon_core::{Result as CoreResult, RunStatus, ScriptContext};
 use chronon_executor::ScriptDescriptor;
@@ -47,6 +47,11 @@ static E2E_STATE: OnceLock<Arc<E2eState>> = OnceLock::new();
 /// Lab script name registered into the in-process registry.
 pub const E2E_SCRIPT_NAME: &str = "e2e_echo";
 pub const E2E_JOB_NAME: &str = "e2e-nightly";
+/// Paused job that owns [`E2E_HISTORY_RUNS`] older runs for the runs-table paging specs.
+pub const E2E_HISTORY_JOB_NAME: &str = "e2e-history";
+/// History runs seeded two days back, cycling failed / timeout / success, so the UI
+/// `failed` status filter (failed + timeout) matches 30 runs: two pages of 20.
+pub const E2E_HISTORY_RUNS: usize = 45;
 
 fn e2e_echo_invoke(
     _ctx: Box<dyn ScriptContext>,
@@ -92,6 +97,23 @@ impl LocalBackend {
         } else {
             runs.push(run);
         }
+    }
+
+    /// Runs matching the filters, newest first (`scheduled_for`, then `run_id`, descending).
+    fn matching_runs(&self, job_id: Option<&str>, status: Option<&str>) -> Vec<Run> {
+        let mut runs = self.runs.lock().expect("runs lock").clone();
+        if let Some(jid) = job_id {
+            runs.retain(|r| r.job_id.as_deref() == Some(jid));
+        }
+        if let Some(st) = status {
+            runs.retain(|r| r.status.to_string() == st);
+        }
+        runs.sort_by(|a, b| {
+            b.scheduled_for
+                .cmp(&a.scheduled_for)
+                .then_with(|| b.run_id.cmp(&a.run_id))
+        });
+        runs
     }
 }
 
@@ -142,14 +164,31 @@ impl ChrononCoordinatorBackend for LocalBackend {
         offset: usize,
         limit: usize,
     ) -> ChrononResult<Vec<Run>> {
-        let mut runs = self.runs.lock().expect("runs lock").clone();
-        if let Some(jid) = job_id {
-            runs.retain(|r| r.job_id.as_deref() == Some(jid));
-        }
-        if let Some(st) = status {
-            runs.retain(|r| r.status.to_string() == st);
-        }
-        Ok(runs.into_iter().skip(offset).take(limit).collect())
+        Ok(self
+            .matching_runs(job_id, status)
+            .into_iter()
+            .skip(offset)
+            .take(limit)
+            .collect())
+    }
+
+    async fn list_runs_after(
+        &self,
+        job_id: Option<&str>,
+        status: Option<&str>,
+        after: Option<&RunKey>,
+        limit: usize,
+    ) -> ChrononResult<Vec<Run>> {
+        Ok(self
+            .matching_runs(job_id, status)
+            .into_iter()
+            .filter(|r| {
+                after.is_none_or(|key| {
+                    (r.scheduled_for, r.run_id.as_str()) < (key.scheduled_for, key.run_id.as_str())
+                })
+            })
+            .take(limit)
+            .collect())
     }
 
     async fn get_run(&self, run_id: &str) -> ChrononResult<Option<Run>> {
@@ -412,6 +451,31 @@ async fn bootstrap_chronon_fixtures(
     })
 }
 
+/// Seeds the paused history job and its [`E2E_HISTORY_RUNS`] runs, one minute apart.
+async fn seed_run_history(local: &LocalBackend, valence: &Valence) -> anyhow::Result<()> {
+    let mut job = Job::new(E2E_HISTORY_JOB_NAME, E2E_SCRIPT_NAME);
+    job.enabled = false;
+    job.script_sig_hash = "e2e-sig".into();
+    let job_id = job.job_id.clone();
+    local
+        .upsert_job_with_valence(valence, job)
+        .await
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+
+    let newest = Utc::now() - chrono::Duration::days(2);
+    for i in 0..E2E_HISTORY_RUNS {
+        let at = newest - chrono::Duration::minutes(i64::try_from(i)?);
+        let mut run = Run::new(E2E_SCRIPT_NAME, at);
+        run.job_id = Some(job_id.clone());
+        run.status = [RunStatus::Failed, RunStatus::Timeout, RunStatus::Success][i % 3];
+        run.started_at = Some(at);
+        run.finished_at = Some(at);
+        run.duration_ms = Some(15);
+        local.store_run(run);
+    }
+    Ok(())
+}
+
 /// Build shared Valence/Higgs/Chronon once and seed baseline fixtures.
 pub async fn init_e2e_valence() {
     if E2E_STATE.get().is_some() {
@@ -469,6 +533,9 @@ pub async fn init_e2e_valence() {
     let fixtures = bootstrap_chronon_fixtures(chronon_backend.as_ref(), &admin_ctx)
         .await
         .expect("bootstrap chronon fixtures");
+    seed_run_history(&local, &admin_ctx)
+        .await
+        .expect("seed run history");
 
     let factory: Arc<dyn HiggsValenceFactory> = Arc::new(HiggsFactory(RouterValenceFactory::new(
         Arc::clone(&router),
