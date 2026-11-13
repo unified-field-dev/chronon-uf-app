@@ -1,6 +1,8 @@
 //! In-memory paging, quick-search, and filter helpers for Chronon list endpoints.
 //!
 //! 0.1.n: filters run over bounded backend fetches (same pattern as valence-app schema index).
+//! Jobs and scripts page by `offset` over the full list: one row per job or registered script
+//! keeps both lists small. Runs take the cursor path where they can; see [`crate::read_runs_page`].
 
 use orbital_data::DataValue;
 use orbital_paging::{FilterLogicWire, FilterQuery, FilterRuleParam, PageRequest};

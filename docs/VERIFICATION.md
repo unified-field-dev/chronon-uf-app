@@ -128,6 +128,10 @@ Scenario IDs (validating happy + sad):
 - `pw-chronon-jobs-happy-list-detail` / `pw-chronon-jobs-sad-unknown-job` / `pw-chronon-jobs-sad-unverified-create`
 - `pw-chronon-run-now-happy-admin` / `pw-chronon-run-now-sad-non-admin`
 - `pw-chronon-runs-happy-list-detail` / `pw-chronon-runs-sad-unknown-run`
+- `pw-chronon-runs-paging-happy-status-filter-next-previous` (light and dark) /
+  `pw-chronon-runs-paging-happy-phone-next-previous`: cursor Next/Previous over the
+  seeded `e2e-history` runs; the cursor and stale-cursor sad paths are in
+  `chronon-backend/tests/runs_cursor_contract.rs`
 - `pw-chronon-scripts-happy-list` / `pw-chronon-scripts-sad-empty-search-not-crash`
 - `help-spotlight-skips-when-seeded` / `help-spotlight-skips-auth-gate` / `help-spotlight-*-green` (all seven routes)
 
